@@ -72,10 +72,11 @@ class QuizView extends Component {
         return;
       },
       error: (error) => {
-        console.log("Far -> ", error.responseJSON['success'])
         if (!error.responseJSON['success']) {
-          alert('Done for this session !');
-          window.location.replace("http://localhost:3000/play");
+          this.setState({
+            forceEnd: true
+          });
+          return;
         }
         else{
 
