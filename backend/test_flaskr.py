@@ -5,6 +5,8 @@ from flask_sqlalchemy import SQLAlchemy
 
 from flaskr import create_app
 from models import setup_db, Question, Category
+from settings import DB_USER, DB_HOST, DB_PASSWORD,\
+    DB_TEST_NAME, DB_DIALECT, DB_PORT
 
 
 class TriviaTestCase(unittest.TestCase):
@@ -15,9 +17,9 @@ class TriviaTestCase(unittest.TestCase):
         self.app = create_app()
         self.client = self.app.test_client
         self.database_name = "trivia_test"
-        #self.database_path = "postgres://{}/{}".format('localhost:5432', self.database_name)
-        self.database_path = "postgresql://{}:{}@{}/{}".format(
-            "postgres", "admin", "localhost:5432", self.database_name
+
+        self.database_path = "{}://{}:{}@{}:{}/{}".format(
+            DB_DIALECT, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT, DB_TEST_NAME
         )
         setup_db(self.app, self.database_path)
 
@@ -76,8 +78,8 @@ class TriviaTestCase(unittest.TestCase):
     def test_get_questions_empty(self):
         res = self.client().get('/questions')
         data = json.loads(res.data)
-        self.assertIs(data['success'], False)
-        self.assertEqual(res.status_code, 404)
+        self.assertIsNot(data['success'], False)
+        self.assertNotEqual(res.status_code, 404)
 
     def test_add_question(self):
         res = self.client().post('/questions', json=self.new_question)
@@ -93,10 +95,10 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 422)
 
     def test_delete_question(self):
-        res = self.client().delete('/questions/16')
+        res = self.client().delete('/questions/32')
         data = json.loads(res.data)
         self.assertIs(data['success'], True)
-        self.assertEqual(data['deleted'], 16)
+        self.assertEqual(data['deleted'], 32)
 
     def test_delete_question_fail(self):
         res = self.client().delete('/questions/3000')
